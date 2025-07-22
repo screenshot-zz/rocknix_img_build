@@ -97,24 +97,42 @@ download_mod_data() {
 	grep "browser_download_url" | \
 	grep -v "source" | \
 	sed -E 's/.*"browser_download_url": "([^"]+)".*/\1/' | \
-	xargs -n 1 -I {} wget -P $1 {}
+	xargs -n 1 -I {} wget --show-progress --progress=bar:force:noscroll -P $1 {}
+}
+
+get_latest_version() {
+	download_url="https://github.com/stolen/r.nix-distribution/releases/download/k36-emmc-wip/ROCKNIX-RK3326.aarch64-20250708-b-rk915wifi.img.gz"
+	# 输出结果
+	echo "最新 RK3326.b.img.gz 文件的下载地址是: $download_url"
+}
+
+copy_minimal_files() {
+	local file_list=(
+	    "cheats.tar.gz"
+	    "datas.zip"
+	    "jdk.zip"
+	    "bezels_480x320.zip"
+	    "bezels_640x480.zip"
+	    "bezels_720x720.zip"
+	)
+
+	mkdir -p ${mount_point}/update/
+	for file in "${file_list[@]}"; do
+		cp ${download_data}/$file ${mount_point}/update/
+	done
+	cp ${download_data}/mod_cores.zip ${mount_point}/update/
+	cp ${download_data}/mod_cores_genesis_plus_gx_EX_libretro.so.zip ${mount_point}/update/
 }
 
 filename=$1
 source_img_name=${filename%.*}
 #source_img_file="${source_img_name}.img.gz"
-#target_img_name="JELOS-RGB30.aarch64-20240314-MOU"
 mount_point="target"
 mount_point_storage="storage"
 common_dev="update_files"
 system_root="SYSTEM-root"
 download_data="data_files"
 
-if [ -z "$1" ]  
-then  
-    echo "Should run with img as: sudo ./build_mod_img.sh IMG_TO_BE_MOD.img"
-    exit 1
-fi
 
 # Check if root
 if [ "$UID" -ne 0 ]; then
@@ -122,9 +140,20 @@ if [ "$UID" -ne 0 ]; then
     exit 1
 fi
 
+if [ -z "$filename" ] || [ "$filename" = "mini" ]; then
+    get_latest_version
+    filenamegz=$(basename "$download_url")
+    wget --show-progress --progress=bar:force:noscroll ${download_url} -O ${filenamegz} || exit 1
+    echo "Decompressing Rocknix image"
+    gzip -d ${filenamegz} | exit 1
+    filename="${filenamegz%.gz}"
+fi
+
 echo "Welcome to build Rocknix mod IMG!"
 
-resize_img $filename 1024 2400 ext4
+if [[ "$1" != "mini" ]]; then
+	resize_img $filename 1024 2400 ext4
+fi
 
 echo "Creating mount point"
 mkdir -p ${mount_point}
@@ -148,7 +177,12 @@ cp ${common_dev}/functions ${mount_point_storage}/data/
 if [ ! -d ${download_data} ]; then
 	download_mod_data ${download_data}
 fi
-cp ${download_data}/* ${mount_point_storage}/data/
+
+if [[ "$1" == "mini" ]]; then
+	copy_minimal_files
+else
+	cp ${download_data}/* ${mount_point_storage}/data/
+fi
 
 # Update issue file
 echo "Update issue file" 
@@ -215,3 +249,12 @@ losetup -d ${loop_device}
 rm -rf ${system_root}
 rm -rf ${mount_point}
 rm -rf ${mount_point_storage}
+
+if [[ "$1" == mini* ]]; then
+  new_filename="ROCKNIX-RK3326.aarch64-20250708-emmc-support-mini.img"
+else
+  new_filename="ROCKNIX-RK3326.aarch64-20250708-emmc-support.img"
+fi
+
+mv ${filename} ${new_filename}
+gzip ${new_filename}

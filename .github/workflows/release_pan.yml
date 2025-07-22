@@ -119,6 +119,11 @@ jobs:
           chmod +x ./build_3326_common.sh
           sudo ./build_3326_common.sh
 
+      - name: 构建 3326 emmc 映像
+        run: |
+          chmod +x ./build_3326_emmc.sh
+          sudo ./build_3326_emmc.sh
+
       - name: 构建 H700 映像
         run: |
           chmod +x ./build_h700_common.sh
