@@ -428,7 +428,7 @@ else
     echo "错误: 必需的压缩包 $target_zip 不存在"
 fi
 
-nds_resolutions="1920x1080 1280x720 720x720 640x480"
+nds_resolutions="1920x1080 1280x720 720x720 640x480 720x480 480x320 800x480 854x480 1024x768"
 if [[ ! " $nds_resolutions " =~ " $detected_res " ]]; then
 	rm -rf /storage/.config/drastic/lib/libSDL2-2.0.so.0 
 fi
