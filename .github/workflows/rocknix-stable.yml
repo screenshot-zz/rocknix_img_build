@@ -132,7 +132,7 @@ jobs:
             echo "RELEASE_NAME=自动构建成功 - stable - $ver" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: 🧮 解析应构建架构（含 mini）
+      - name: 🧮 解析应构建架构（仅非 mini）
         id: matrix
         run: |
           if [ -n "${{ github.event.inputs.selected_archs }}" ]; then
@@ -141,7 +141,7 @@ jobs:
             base=("3566" "x55" "3326" "h700")
           fi
 
-          result="["; for arch in "${base[@]}"; do result+="\"${arch}_stable\",\"${arch}_mini_stable\","; done
+          result="["; for arch in "${base[@]}"; do result+="\"${arch}_stable\","; done
           result="${result%,}]"
           echo "BUILD_ARCHS=$result" >> "$GITHUB_OUTPUT"
 
@@ -164,8 +164,8 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 
-  build-and-upload:
-    name: 并行构建与上传
+  build-and-package:
+    name: 构建并保存：${{ matrix.arch }}
     needs: version-check
     if: needs.version-check.outputs.SKIP_BUILD != 'true'
     runs-on: ubuntu-latest
@@ -175,35 +175,26 @@ jobs:
     steps:
       - name: 🧾 检出仓库
         uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+
       - name: 🔧 安装构建依赖
         run: |
           sudo apt-get update
           sudo apt-get install -y xmlstarlet jq p7zip-full gh
-      - name: 🔐 安装并登录 BaiduPCS-Go
-        run: |
-          curl -Lo pcs.zip https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
-          unzip pcs.zip
-          mv BaiduPCS-Go-v3.9.7-linux-amd64/BaiduPCS-Go .
-          chmod +x BaiduPCS-Go
-          sudo mv BaiduPCS-Go /usr/local/bin/
-          BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
-      - name: 🔨 构建镜像：${{ matrix.arch }}
+
+      - name: 🔨 构建镜像
         env:
           GH_PAT: ${{ secrets.GH_PAT }}
         run: |
           chmod +x ./build_mod_img.sh
           sudo GH_PAT="${GH_PAT}" ./build_mod_img.sh ${{ matrix.arch }}
-      - name: ☁️ 上传到百度云（仅非 mini）
-        if: "!endsWith(matrix.arch, '_mini')"
-        run: |
-          ver=${{ needs.version-check.outputs.LATEST_VERSION }}
-          for f in *.img.gz; do
-            if [[ "$f" != *mini* ]]; then
-              BaiduPCS-Go upload "$f" "/lcdyk有的掌机/魔改包/rocknix自动构建/stable/$ver"
-            fi
-          done
+
+      - name: 📦 上传构建产物为 Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.arch }}-img
+          path: |
+            *.img.gz
+
       - name: 🪓 分卷并上传至 GitHub Release
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -220,12 +211,47 @@ jobs:
               gh release upload "$tag" "$f" --clobber
             fi
           done
+  upload-to-baidu:
+    name: ☁️ 上传所有非 mini 镜像
+    needs: build-and-package
+    runs-on: ubuntu-latest
+    if: success() && needs.version-check.outputs.SKIP_BUILD != 'true'
+    steps:
+      - name: 📥 下载所有构建产物
+        uses: actions/download-artifact@v4
+        with:
+          path: ./downloaded
+
+      - name: 🔐 安装并登录 BaiduPCS-Go
+        run: |
+          curl -Lo pcs.zip https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
+          unzip pcs.zip
+          mv BaiduPCS-Go-v3.9.7-linux-amd64/BaiduPCS-Go .
+          chmod +x BaiduPCS-Go
+          sudo mv BaiduPCS-Go /usr/local/bin/
+          BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
+
+      - name: ☁️ 上传非 mini 镜像
+        run: |
+          ver=${{ needs.version-check.outputs.LATEST_VERSION }}
+          remote_dir="/lcdyk有的掌机/魔改包/rocknix自动构建/stable/$ver"
+
+          echo "📁 确保远程目录存在：$remote_dir"
+          BaiduPCS-Go mkdir "$remote_dir" || echo "⚠️ 创建目录可能已存在，忽略"
+
+          find ./downloaded -name '*.img.gz' | while read file; do
+            if [[ "$file" != *mini* ]]; then
+              echo "⏫ 正在上传 $file 到 $remote_dir"
+              BaiduPCS-Go upload "$file" "$remote_dir"
+            fi
+          done
+
 
   save-version:
     name: 保存版本号
     needs: 
       - version-check
-      - build-and-upload
+      - upload-to-baidu
     if: needs.version-check.outputs.SKIP_BUILD != 'true'
     runs-on: ubuntu-latest
     steps:
@@ -242,7 +268,7 @@ jobs:
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git fetch origin || true
-
+      
           if git ls-remote --exit-code --heads origin mod-version >/dev/null; then
             git checkout mod-version
           else
@@ -251,22 +277,32 @@ jobs:
           fi
 
           touch .version
+      
+          # 原始文件备份以便后续 diff
+          cp .version .version.bak || true
+      
           if grep -q "^$key:" .version; then
             sed -i "s/^$key:.*/$key:$ver/" .version
           else
             echo "$key:$ver" >> .version
           fi
-
-          git add .version
-          git commit -m "🔄 更新版本号 $key:$ver"
-          git push origin mod-version --force
+      
+          # 如果内容有变动才提交
+          if ! cmp -s .version .version.bak; then
+            git add .version
+            git commit -m "🔄 更新版本号 $key:$ver"
+            git push origin mod-version --force
+          else
+            echo "✅ 版本号未变化（$key:$ver），跳过提交。"
+          fi
 
   cleanup-on-failure:
     name: ❌ 构建失败清理
     if: failure() && needs.version-check.outputs.SKIP_BUILD != 'true'
     needs: 
       - version-check
-      - build-and-upload
+      - upload-to-baidu
+      - build-and-package
     runs-on: ubuntu-latest
     steps:
       - name: 🧹 清理 Release 与 tag（仅构建失败时执行）
