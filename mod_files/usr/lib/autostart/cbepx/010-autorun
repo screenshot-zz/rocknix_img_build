@@ -14,7 +14,7 @@ hw_info="$(echo ${hw_info} | sed -e "s#[/]#-#g")"
 if [ -f /flash/debug_en ]; then
     mount -o remount,rw /flash
 fi
-ulimit -c 0
+sysctl -w kernel.core_pattern="| /bin/false"
 
 # themes
 mkdir -p "${ROM_DIR}/ANBERNIC/themes"
