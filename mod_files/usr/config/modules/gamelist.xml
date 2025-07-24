@@ -193,6 +193,16 @@
 		<image>./images/cheats.png</image>
 	</game>
 	<game>
+		<path>./mod/pm.sh</path>
+		<name>&#xf071; 安装 PortMaster</name>
+		<desc>安装 PortMaster文件.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+			<thumbnail>./images/bios-thumb.png</thumbnail>
+		<image>./images/bios.png</image>
+	</game>
+	<game>
 		<path>./mod/grh_bios.sh</path>
 		<name>&#xf071; 安装 BIOS 资源</name>
 		<desc>安装 BIOS 资源文件.</desc>

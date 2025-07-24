@@ -535,7 +535,7 @@ filename="${filenamegz%.gz}"
 echo -e "\033[1;33m✨ 开始魔改镜像：$filename\033[0m"
 
 if ! $IS_MINI; then
-  resize_img "$filename" 1024 2400 ext4
+  resize_img $filename 1524 2800 ext4
 fi
 
 echo -e "\033[1;34m📁 创建挂载点...\033[0m"

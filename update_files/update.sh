@@ -50,7 +50,11 @@ if [ ! -f "${ROM_DIR}/neogeo/neogeo.zip" ] && [ -f /storage/data/roms.tar.gz ]; 
 	StartProgress spinner "   - Installing roms files....... " "tar -xf /storage/data/roms.tar.gz -C ${ROM_DIR} &>/dev/null" >/dev/tty0
 	[ -f "${ROM_DIR}/dc_tmp/vmu_save_A1.bin" ] && cp -f ${ROM_DIR}/dc_tmp/* ${ROM_DIR}/bios/dc/ && rm -rf ${ROM_DIR}/dc_tmp
 fi
+
+[ -f /storage/data/datas.zip ] && StartProgress spinner "   - Installing PortMaster...... " "tar -xf /storage/data/pm.tar.gz -C ${ROM_DIR} &>/dev/null" >/dev/tty0
+
 [ -f /storage/data/datas.zip ] && StartProgress spinner "   - Installing cheat part1...... " "unzip -oq /storage/data/datas.zip -d /storage &>/dev/null" >/dev/tty0
+
 if [ ! -d "${ROM_DIR}/ANBERNIC/cheats/0-中文金手指" ]; then
 	[ -f /storage/data/cheats.tar.gz ] && StartProgress spinner "   - Installing cheat part2...... " "tar xf /storage/data/cheats.tar.gz -C ${ROM_DIR}/ANBERNIC/ &>/dev/null" >/dev/tty0
 	touch /storage/roms/ANBERNIC/cheats/.done

@@ -152,7 +152,7 @@ fi
 echo "Welcome to build Rocknix mod IMG!"
 
 if [[ "$1" != "mini" ]]; then
-	resize_img $filename 1024 2400 ext4
+	resize_img $filename 1524 2800 ext4
 fi
 
 echo "Creating mount point"

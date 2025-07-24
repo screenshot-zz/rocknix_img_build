@@ -195,6 +195,16 @@
 		<image>./images/cheats.png</image>
 	</game>
 	<game>
+		<path>./mod/pm.sh</path>
+		<name>&#xf071; Install PortMaster</name>
+		<desc>Install PortMaster files.</desc>
+		<developer>G.R.H</developer>
+		<publisher>JELOS</publisher>
+		<genre>script</genre>
+		<thumbnail>./images/bios-thumb.png</thumbnail>
+		<image>./images/bios.png</image>
+	</game>
+	<game>
 		<path>./mod/grh_bios.sh</path>
 		<name>&#xf071; Install BIOS</name>
 		<desc>Install BIOS files.</desc>
