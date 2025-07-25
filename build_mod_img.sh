@@ -550,17 +550,21 @@ if [[ -z "$DEVICE" ]]; then
   exit 1
 fi
 
-# 🔍 获取镜像下载链接
-echo -e "\033[1;36m🔍 获取最新版本镜像...\033[0m"
-get_latest_version "$DEVICE"
+if [[ "$2" != *.img ]]; then
+    # 🔍 获取镜像下载链接
+    echo -e "\033[1;36m🔍 获取最新版本镜像...\033[0m"
+    get_latest_version "$DEVICE"
 
-filenamegz=$(basename "$download_url")
-echo -e "\033[1;36m📦 下载镜像文件：$filenamegz\033[0m"
-wget --show-progress --progress=bar:force:noscroll "$download_url" -O "$filenamegz"
+    filenamegz=$(basename "$download_url")
+    echo -e "\033[1;36m📦 下载镜像文件：$filenamegz\033[0m"
+    wget --show-progress --progress=bar:force:noscroll "$download_url" -O "$filenamegz"
 
-echo -e "\033[1;36m📂 解压镜像...\033[0m"
-gzip -d "$filenamegz"
-filename="${filenamegz%.gz}"
+    echo -e "\033[1;36m📂 解压镜像...\033[0m"
+    gzip -d "$filenamegz"
+    filename="${filenamegz%.gz}"
+else
+    filename=$2
+fi
 
 echo -e "\033[1;33m✨ 开始魔改镜像：$filename\033[0m"
 
@@ -611,7 +615,9 @@ finalize_image
 suffix=$($IS_MINI && echo "mini-mod" || echo "mod")
 output_file="${filename/.img/-$suffix.img}"
 mv "$filename" "$output_file"
-gzip "$output_file"
 
-size=$(du -h "$output_file.gz" | cut -f1)
-echo -e "\033[1;32m✅ 构建完成：$output_file.gz （大小：$size）\033[0m"
+if [[ "$2" != *.img ]]; then
+    gzip "$output_file"
+    size=$(du -h "$output_file.gz" | cut -f1)
+    echo -e "\033[1;32m✅ 构建完成：$output_file.gz （大小：$size）\033[0m"
+fi
