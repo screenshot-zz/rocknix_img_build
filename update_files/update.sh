@@ -48,6 +48,8 @@ chmod 755 -R /storage/remappings/*
 if [ ! -f "${ROM_DIR}/neogeo/neogeo.zip" ] && [ -f /storage/data/roms.tar.gz ]; then
 	[ -f "${ROM_DIR}/bios/dc/vmu_save_A1.bin" ] && mkdir -p ${ROM_DIR}/dc_tmp && cp ${ROM_DIR}/bios/dc/vmu_save* ${ROM_DIR}/dc_tmp/
 	StartProgress spinner "   - Installing roms files....... " "tar -xf /storage/data/roms.tar.gz -C ${ROM_DIR} &>/dev/null" >/dev/tty0
+	mkdir -p /storage/roms/dreamcast/data/
+	cp -rf /storage/roms/bios/dc/* /storage/roms/dreamcast/data/
 	[ -f "${ROM_DIR}/dc_tmp/vmu_save_A1.bin" ] && cp -f ${ROM_DIR}/dc_tmp/* ${ROM_DIR}/bios/dc/ && rm -rf ${ROM_DIR}/dc_tmp
 fi
 

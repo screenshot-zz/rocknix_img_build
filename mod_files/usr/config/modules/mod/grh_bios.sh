@@ -13,6 +13,8 @@ if [ -z "$1" ]; then
             find /storage/roms/bios -name "${file}" -type f -exec zip -g "/storage/roms/dc_backup.zip" {} &>/dev/null \;
         done
         tar -xf /storage/data/roms.tar.gz -C /storage/roms
+	mkdir -p /storage/roms/dreamcast/data/
+	cp -rf /storage/roms/bios/dc/* /storage/roms/dreamcast/data/
         unzip -oq /storage/roms/dc_backup.zip -d /
         rm -rf /storage/roms/dc_backup.zip
         touch /storage/roms/bios/.done
@@ -28,6 +30,8 @@ else
             find /storage/roms/bios -name "${file}" -type f -exec zip -g "/storage/roms/dc_backup.zip" {} &>/dev/null \;
         done
         tar -xf /storage/data/roms.tar.gz -C /storage/roms
+	mkdir -p /storage/roms/dreamcast/data/
+	cp -rf /storage/roms/bios/dc/* /storage/roms/dreamcast/data/
         unzip -oq /storage/roms/dc_backup.zip -d /
         rm -rf /storage/roms/dc_backup.zip
         touch /storage/roms/bios/.done
