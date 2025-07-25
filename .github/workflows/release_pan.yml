@@ -104,31 +104,28 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y xmlstarlet jq
+          chmod +x ./build_mod_img.sh
 
       - name: 构建 3566 映像
         run: |
-          chmod +x ./build_3566_common.sh
-          sudo ./build_3566_common.sh nightly-20250712
+          sudo ./build_mod_img.sh 3566 nightly-20250712
           
       - name: 构建 X55 映像
         run: |
-          chmod +x ./build_3566_common.sh
-          sudo ./build_3566_common.sh x55 nightly-20250712
+          sudo ./build_mod_img.sh x55 nightly-20250712
 
       - name: 构建 3326 映像
         run: |
-          chmod +x ./build_3326_common.sh
-          sudo ./build_3326_common.sh nightly-20250712
+          sudo ./build_mod_img.sh 3326 nightly-20250712
 
       - name: 构建 3326 emmc 映像
         run: |
           chmod +x ./build_3326_emmc.sh
-          sudo ./build_3326_emmc.sh nightly-20250712
+          sudo ./build_3326_emmc.sh
 
       - name: 构建 H700 映像
         run: |
-          chmod +x ./build_h700_common.sh
-          sudo ./build_h700_common.sh nightly-20250712
+          sudo ./build_mod_img.sh h700 nightly-20250712
 
       - name: 提取所有镜像
         id: extract_assets

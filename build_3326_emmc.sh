@@ -101,7 +101,7 @@ download_mod_data() {
 }
 
 get_latest_version() {
-	download_url="https://github.com/stolen/r.nix-distribution/releases/download/k36-emmc-wip/ROCKNIX-RK3326.aarch64-20250708-b-rk915wifi.img.gz"
+	download_url="https://github.com/lcdyk0517/rocknix.sync/releases/download/k36-emmc-wip/ROCKNIX-RK3326.aarch64-20250708-b-rk915wifi.img.gz"
 	# 输出结果
 	echo "最新 RK3326.b.img.gz 文件的下载地址是: $download_url"
 }
