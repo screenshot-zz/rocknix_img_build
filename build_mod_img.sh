@@ -15,7 +15,6 @@ IS_3326=false
 IS_H700=false
 IS_STABLE=false
 IS_BACKUPREPO=false
-RELEASE_VERSION=""
 
 if [[ "$DEVICE" == *mini* ]]; then IS_MINI=true; fi
 if [[ "$DEVICE" == *x55* ]]; then IS_X55=true; fi
