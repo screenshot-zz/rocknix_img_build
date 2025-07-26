@@ -120,8 +120,7 @@ jobs:
 
       - name: 构建 3326 emmc 映像
         run: |
-          chmod +x ./build_3326_emmc.sh
-          sudo ./build_3326_emmc.sh
+          sudo ./build_mod_img.sh 3326_emmc k36-emmc-wip
 
       - name: 构建 H700 映像
         run: |
