@@ -72,7 +72,8 @@ jobs:
           version=$(basename "$latest_url" | grep -oP '\d{8}')
           echo "📦 最新版本号: $version"
           echo "$version" > .version
-          echo "LATEST_VERSION=$version" >> $GITHUB_ENV
+          date_ver=$(date +"%Y%m%d")
+          echo "LATEST_VERSION=$date_ver" >> $GITHUB_ENV
 
           if [ "${{ github.event.inputs.force_build }}" = "true" ]; then
             echo "🚨 手动触发：忽略版本比较，强制构建"
