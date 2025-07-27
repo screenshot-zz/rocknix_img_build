@@ -433,8 +433,9 @@ copy_3326() {
   cp ${common_dev}/n64_default.ini ${system_root}/usr/local/share/mupen64plus/default.ini
   cp ${common_dev}/mupen64plus.cfg.mymini ${system_root}/usr/local/share/mupen64plus/
   MODVER=$(basename $(ls -d ${system_root}/usr/lib/kernel-overlays/base/lib/modules/*))
-  cp ${common_dev}/rk915.ko ${system_root}/usr/lib/kernel-overlays/base/lib/modules/${MODVER}/kernel/drivers/net/wireless/
-  cp ${common_dev}/rocknix-singleadc-joypad.ko ${system_root}/usr/lib/kernel-overlays/base/lib/modules/${MODVER}/rocknix-joypad/
+  cp ${common_dev}/linux-${MODVER}/KERNEL ${mount_point}/
+  cp ${common_dev}/linux-${MODVER}/rk915.ko ${system_root}/usr/lib/kernel-overlays/base/lib/modules/${MODVER}/kernel/drivers/net/wireless/
+  cp ${common_dev}/linux-${MODVER}/rocknix-singleadc-joypad.ko ${system_root}/usr/lib/kernel-overlays/base/lib/modules/${MODVER}/rocknix-joypad/
   find ${system_root}/usr/lib/kernel-overlays/base/lib/modules/${MODVER}/ -name *.ko | \
     sed -e "s,${system_root}/usr/lib/kernel-overlays/base/lib/modules/${MODVER}/,," \
       > ${system_root}/usr/lib/kernel-overlays/base/lib/modules/${MODVER}/modules.order
