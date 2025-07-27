@@ -273,7 +273,6 @@ download_mod_data() {
 
 get_latest_version() {
     case "$DEVICE" in
-        *emmc*) PATTERN="RK3326.*b-rk915wifi.img.gz$" ;;
         3326*) PATTERN="RK3326.*b.img.gz$" ;;
         x55*)  PATTERN="RK3566.*x55.img.gz$" ;;
         3566*) PATTERN="RK3566.*Generic.img.gz$" ;;
@@ -452,7 +451,7 @@ copy_3326() {
     else
         echo "⚠️  eMMC 模式，复制 3326 配置文件..."
         rm -rf ${mount_point}/*.dtb
-        cp -rf ${common_dev}/3326_ini/  ${mount_point}/
+        cp -rf ${common_dev}/3326/*  ${mount_point}/
         rm -rf ${mount_point}/boot*.ini
         
     fi
@@ -558,6 +557,10 @@ finalize_image() {
     umount ${loop_device}p2
     losetup -d ${loop_device}
 
+    if [[ "$IS_EMMC" == "true" ]]; then
+        { dd if=$filename bs=32K count=1; cat ${common_dev}/emmc_3326_uboot.bin; } | dd of=$filename bs=4M conv=fsync,notrunc
+    fi
+
     echo -e "\033[1;32m✅ 清理临时目录...\033[0m"
     rm -rf ${system_root} ${mount_point} ${mount_point_storage}
 }
@@ -568,12 +571,6 @@ finalize_image() {
 if [[ -z "$DEVICE" ]]; then
   echo -e "\033[1;31m❌ 参数不能为空，支持：3566,3566_mini,x55,x55_mini,3326,3326_mini,h700,h700_mini\033[0m"
   exit 1
-fi
-
-if [[ "$IS_EMMC" == "true" && -z "$2" ]]; then
-    echo -e "\033[1;31m❌ eMMC 模式下，必须提供版本号或本地镜像路径作为参数。\033[0m"
-    echo -e "\033[1;33m👉 示例：./build_mod_img.sh 3326_emmc k36-emmc-wip 或 ./build_mod_img.sh 3326_emmc k36-emmc-wip.img\033[0m"
-    exit 1
 fi
 
 if [[ "$2" != *.img ]]; then
@@ -640,7 +637,12 @@ fi
 # ✅ 构建 SYSTEM 镜像等收尾
 finalize_image
 
-suffix=$($IS_MINI && echo "mini-mod" || echo "mod")
+if [[ "$IS_EMMC" == "true" ]]; then
+    suffix=$($IS_MINI && echo "mini-emmc-mod" || echo "emmc-mod")
+else
+    suffix=$($IS_MINI && echo "mini-mod" || echo "mod")
+fi
+
 output_file="${filename/.img/-$suffix.img}"
 mv "$filename" "$output_file"
 
