@@ -6,6 +6,9 @@
 
 # OpenBOR only works with Pak files, if you have an extracted game you will need to create a pak first.
 
+OB=${2}
+[[ -z ${OB} ]] && OB=OpenBOR
+
 pakname=$(basename "$1")
 pakname="${pakname%.*}"
 
@@ -30,16 +33,20 @@ SAVES="${CONFIGDIR}/Saves"
   ln -sf "$1" "${PAKS}"
 
 # only create symlink to master.cfg if its the first time running the pak
-  if [ ! -f "${SAVES}/${pakname}.cfg" ]; then
-    ln -sf "${CONFIGDIR}/master.cfg" "${SAVES}/${pakname}.cfg"
-  fi
+if [ ! -f "${SAVES}/${pakname}.cfg" ]; then
+	if [ ${OB} = "OpenBOR_ff" ]; then
+		ln -sf "${CONFIGDIR}/masterff.cfg" "${SAVES}/${pakname}.cfg"
+	else
+		ln -sf "${CONFIGDIR}/master.cfg" "${SAVES}/${pakname}.cfg"
+	fi
+fi
 
 # We start the fake keyboard
-  gptokeyb openbor &
+gptokeyb -c /usr/config/gptokeyb/openbor.gptk ${OB} &
 
 # Run OpenBOR in the config folder
   cd "${CONFIGDIR}"
-  OpenBOR
+  ${OB}
 
 # We stop the fake keyboard
   killall gptokeyb &
