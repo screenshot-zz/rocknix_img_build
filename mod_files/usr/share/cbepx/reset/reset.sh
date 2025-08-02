@@ -380,6 +380,11 @@ case ${QUIRK_DEVICE} in
 	pre_nds_cfg="/storage/.config/drastic/config/drastic.cfg_mm"
 	amixer -c 0 -M cset name="Playback Mux" SPK
     ;;
+    "GameMT E6")
+        unzip -oq /usr/share/cbepx/reset/353.zip -d /storage
+        Set_system "E6" "353"
+	amixer -c 0 -M cset name="Playback Mux" SPK
+    ;;
     *)
         unzip -oq /usr/share/cbepx/reset/353.zip -d /storage
         Set_system "Rockchip" "353"
