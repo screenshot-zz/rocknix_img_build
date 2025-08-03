@@ -174,12 +174,13 @@ jobs:
       - name: 上传所有镜像到百度云盘
         run: |
           echo "${{ env.ASSET_PATHS }}" > files.txt
-          echo "📁 创建网盘目录: /rocknix/自动构建/${{ env.LATEST_VERSION }}"
-          BaiduPCS-Go mkdir "/rocknix/自动构建/${{ env.LATEST_VERSION }}"
+          today=$(date +%Y%m%d)
+          remote_dir="/rocknix/手动构建/${today}"
+          BaiduPCS-Go mkdir "$remote_dir"
           while IFS= read -r file; do
             if [ -f "$file" ]; then
               echo "📤 上传中: $file"
-              BaiduPCS-Go upload "$file" "/rocknix/自动构建/${{ env.LATEST_VERSION }}"
+              BaiduPCS-Go upload "$file" "$remote_dir"
             else
               echo "⚠️ 文件不存在: $file"
             fi
