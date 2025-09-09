@@ -14,11 +14,11 @@ on:
       selected_archs:
         description: "（可选）要构建的架构（多个用逗号分隔，如 3566,x55,h700）"
         required: false
-        default: ""
-      baiduyun_path:
-        description: '自定义百度云上传路径（结尾不要加斜杠）'
-        required: false
-        default: '/rocknix/自动构建/stable'
+        default: "3566"
+#      baiduyun_path:
+#        description: '自定义百度云上传路径（结尾不要加斜杠）'
+#        required: false
+#        default: '/rocknix/自动构建/stable'
         
   schedule:
     - cron: '0 2 * * *'
