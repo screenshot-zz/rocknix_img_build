@@ -14,39 +14,39 @@ jobs:
       - name: 🧾 检出仓库
         uses: actions/checkout@v4
 
-      - name: ☁️ 清理百度云构建目录（nightly & stable 各保留 5 个）
-        run: |
-          echo "⬇️ 下载 BaiduPCS-Go..."
-          curl -Lo pcs.zip https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
-          unzip pcs.zip
-          mv BaiduPCS-Go-v3.9.7-linux-amd64/BaiduPCS-Go .
-          chmod +x BaiduPCS-Go
-          sudo mv BaiduPCS-Go /usr/local/bin/
+#      - name: ☁️ 清理百度云构建目录（nightly & stable 各保留 5 个）
+#        run: |
+#          echo "⬇️ 下载 BaiduPCS-Go..."
+#          curl -Lo pcs.zip https://github.com/qjfoidnh/BaiduPCS-Go/releases/download/v3.9.7/BaiduPCS-Go-v3.9.7-linux-amd64.zip
+#          unzip pcs.zip
+#          mv BaiduPCS-Go-v3.9.7-linux-amd64/BaiduPCS-Go .
+#          chmod +x BaiduPCS-Go
+#          sudo mv BaiduPCS-Go /usr/local/bin/
 
-          echo "🔐 使用 Cookie 登录 BaiduPCS-Go..."
-          BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
+#          echo "🔐 使用 Cookie 登录 BaiduPCS-Go..."
+#          BaiduPCS-Go login -cookies="${{ secrets.BAIDU_COOKIE }}"
 
-          for TYPE in nightly stable; do
-            FOLDER="/rocknix/魔改包/自动构建/$TYPE"
-            echo "📂 检查目录：$FOLDER"
+#          for TYPE in nightly stable; do
+#            FOLDER="/rocknix/魔改包/自动构建/$TYPE"
+#            echo "📂 检查目录：$FOLDER"
 
-            DIRS=$(BaiduPCS-Go ls "$FOLDER" | grep "^d" | awk '{print $2}')
-            COUNT=$(echo "$DIRS" | wc -l)
+#            DIRS=$(BaiduPCS-Go ls "$FOLDER" | grep "^d" | awk '{print $2}')
+#            COUNT=$(echo "$DIRS" | wc -l)
 
-            echo "📦 当前子目录数量：$COUNT"
+#            echo "📦 当前子目录数量：$COUNT"
 
-            if [ "$COUNT" -gt 5 ]; then
-              DELETE_COUNT=$((COUNT - 5))
-              echo "🧹 [$TYPE] 需要删除最旧的 $DELETE_COUNT 个目录"
+#            if [ "$COUNT" -gt 5 ]; then
+#              DELETE_COUNT=$((COUNT - 5))
+#              echo "🧹 [$TYPE] 需要删除最旧的 $DELETE_COUNT 个目录"
 
-              echo "$DIRS" | sort | head -n "$DELETE_COUNT" | while read dir; do
-                echo "❌ 删除：$FOLDER/$dir"
-                BaiduPCS-Go rm -rf "$FOLDER/$dir"
-              done
-            else
-              echo "✅ [$TYPE] 当前目录数量未超过限制，无需清理"
-            fi
-          done
+#              echo "$DIRS" | sort | head -n "$DELETE_COUNT" | while read dir; do
+#                echo "❌ 删除：$FOLDER/$dir"
+#                BaiduPCS-Go rm -rf "$FOLDER/$dir"
+#              done
+#            else
+#              echo "✅ [$TYPE] 当前目录数量未超过限制，无需清理"
+#            fi
+#          done
           
       - name: 🗑️ 清理 GitHub Releases（stable、nightly 各保留5个，其余全部删除 + 删除孤立 tag）
         run: |
