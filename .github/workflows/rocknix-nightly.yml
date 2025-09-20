@@ -15,10 +15,10 @@ on:
         description: "（可选）要构建的架构（多个用逗号分隔，如 3566,x55,h700）"
         required: false
         default: ""
-      baiduyun_path:
-        description: '自定义百度云上传路径（结尾不要加斜杠）'
-        required: false
-        default: '/rocknix/自动构建/nightly'
+#      baiduyun_path:
+#        description: '自定义百度云上传路径（结尾不要加斜杠）'
+#        required: false
+#        default: '/rocknix/自动构建/nightly'
   schedule:
     - cron: '0 0 * * *'
   create:
