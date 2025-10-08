@@ -1,9 +1,9 @@
 name: 🧹 清理构建记录与百度云构建目录
 
 on:
-  schedule:
-    - cron: "0 4 * * *"
-  workflow_dispatch:
+#  schedule:
+#    - cron: "0 4 * * *"
+#  workflow_dispatch:
 
 jobs:
   cleanup:
